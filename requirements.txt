@@ -3,4 +3,4 @@ flask-cors
 deep-translator
 transformers
 tensorflow
-rarfile
+tf-keras
