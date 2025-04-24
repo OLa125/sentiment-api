@@ -1,7 +1,7 @@
 import os
 import requests
 import tensorflow as tf
-import rarfile
+import zipfile
 import shutil
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -12,8 +12,8 @@ app = Flask(__name__)
 CORS(app)
 
 MODEL_DIR = "model"
-RAR_PATH = "model.rar"
-DOWNLOAD_URL = "https://limewire.com/d/nzK8x#3WHviVnY4K"
+ZIP_PATH = "model.zip"
+DOWNLOAD_URL = "https://limewire.com/d/qazkm#4pPVaSzUNq"
 
 # -------------------------
 # تحميل وفك الضغط للموديل
@@ -22,16 +22,16 @@ def setup_model():
     if not os.path.exists(MODEL_DIR):
         print("🔽 Downloading model...")
         with requests.get(DOWNLOAD_URL, stream=True) as r:
-            with open(RAR_PATH, 'wb') as f:
+            with open(ZIP_PATH, 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
         print("✅ Download complete.")
 
         print("📦 Extracting model...")
-        with rarfile.RarFile(RAR_PATH) as rf:
-            rf.extractall()
+        with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
+            zip_ref.extractall()
         print("✅ Extraction done.")
 
-        os.remove(RAR_PATH)  # ممكن تشيليه بعد الفك
+        os.remove(ZIP_PATH)
 
 setup_model()
 
