@@ -4,3 +4,4 @@ deep-translator
 transformers
 tensorflow
 tf-keras
+gdown
