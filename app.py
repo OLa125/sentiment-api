@@ -13,7 +13,8 @@ CORS(app)
 
 MODEL_DIR = "model"
 ZIP_PATH = "model.zip"
-DOWNLOAD_URL = "https://limewire.com/d/qazkm#4pPVaSzUNq"
+DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1mVM8a8Df3cfmr39fx7L2_RQpJ2uOcIhk"
+
 
 # -------------------------
 # تحميل وفك الضغط للموديل
