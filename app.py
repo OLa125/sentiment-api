@@ -11,8 +11,8 @@ from deep_translator import GoogleTranslator
 app = Flask(__name__)
 CORS(app)
 
-MODEL_DIR = "model"
-ZIP_PATH = "model.zip"
+MODEL_DIR = "."
+ZIP_PATH = "assets.zip"
 DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1kIrOwZfT4zqXjZQvVdRobCUDAt-wA4bR"
 
 
