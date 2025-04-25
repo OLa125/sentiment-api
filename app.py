@@ -1,5 +1,5 @@
 import os
-import requests
+import gdown
 import tensorflow as tf
 import zipfile
 import shutil
@@ -19,11 +19,9 @@ DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1kIrOwZfT4zqXjZQv
 # تحميل وفك الضغط للموديل
 # -------------------------
 def setup_model():
-    if not os.path.exists("tf_model.h5"):  # ✅ التحقق من الملف مش المجلد
+    if not os.path.exists("tf_model.h5"):
         print("🔽 Downloading model...")
-        with requests.get(DOWNLOAD_URL, stream=True) as r:
-            with open(ZIP_PATH, 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
+        gdown.download(DOWNLOAD_URL, ZIP_PATH, quiet=False)
         print("✅ Download complete.")
 
         print("📦 Extracting model...")
