@@ -16,7 +16,6 @@ ZIP_PATH = "model.zip"
 DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1kIrOwZfT4zqXjZQvVdRobCUDAt-wA4bR"
 
 
-
 # -------------------------
 # تحميل وفك الضغط للموديل
 # -------------------------
