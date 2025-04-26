@@ -2,29 +2,17 @@ import os
 import gdown
 import tensorflow as tf
 import zipfile
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
+import gradio as gr
 from transformers import BertTokenizer, TFBertForSequenceClassification
 from deep_translator import GoogleTranslator
-
-# إعداد التطبيق
-app = FastAPI()
-
-# السماح بالـ CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 MODEL_DIR = "."
 ZIP_PATH = "assets.zip"
 DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1kIrOwZfT4zqXjZQvVdRobCUDAt-wA4bR"
 
-# تحميل وفك الموديل
+# -------------------------
+# تحميل وفك الضغط للموديل
+# -------------------------
 def setup_model():
     if not os.path.exists("tf_model.h5"):
         print("🔽 Downloading model...")
@@ -40,24 +28,20 @@ def setup_model():
 
 setup_model()
 
+# -------------------------
 # تحميل الموديل والتوكنيزر
+# -------------------------
 model = TFBertForSequenceClassification.from_pretrained(MODEL_DIR)
 tokenizer = BertTokenizer.from_pretrained(MODEL_DIR)
 labels = ["happy", "sad", "angry", "normal"]
 
-# راوت البريديكت
-@app.post("/predict")
-async def predict(request: Request):
-    data = await request.json()
-
-    if "text" not in data:
-        return JSONResponse(content={"error": "No text provided"}, status_code=400)
-
+# دالة التنبؤ
+def predict(text):
     try:
-        translated_text = GoogleTranslator(source='auto', target='en').translate(data["text"])
+        translated_text = GoogleTranslator(source='auto', target='en').translate(text)
     except Exception as e:
-        return JSONResponse(content={"error": f"Translation failed: {str(e)}"}, status_code=500)
-
+        return f"Translation failed: {str(e)}"
+    
     inputs = tokenizer(translated_text, return_tensors="tf", truncation=True, padding=True)
     outputs = model(**inputs)
     logits = outputs.logits
@@ -65,9 +49,15 @@ async def predict(request: Request):
     sentiment = labels[predicted_class]
 
     return {
-        "original_text": data["text"],
+        "original_text": text,
         "translated_text": translated_text,
         "sentiment": sentiment,
         "label_index": int(predicted_class),
         "logits": logits.numpy().tolist()
     }
+
+# واجهة Gradio
+iface = gr.Interface(fn=predict, inputs="text", outputs="json")
+
+iface.launch(share=True)  # share=True هيسمحلك بمشاركة الرابط العام
+
