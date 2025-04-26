@@ -1,7 +1,6 @@
-Flask
-flask-cors
-deep-translator
+fastapi
+uvicorn
 transformers
 tensorflow
-tf-keras
 gdown
+deep-translator
