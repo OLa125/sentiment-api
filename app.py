@@ -2,22 +2,29 @@ import os
 import gdown
 import tensorflow as tf
 import zipfile
-import shutil
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from transformers import BertTokenizer, TFBertForSequenceClassification
 from deep_translator import GoogleTranslator
 
-app = Flask(__name__)
-CORS(app)
+# إعداد التطبيق
+app = FastAPI()
+
+# السماح بالـ CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 MODEL_DIR = "."
 ZIP_PATH = "assets.zip"
 DOWNLOAD_URL = "https://drive.google.com/uc?export=download&id=1kIrOwZfT4zqXjZQvVdRobCUDAt-wA4bR"
 
-# -------------------------
-# تحميل وفك الضغط للموديل
-# -------------------------
+# تحميل وفك الموديل
 def setup_model():
     if not os.path.exists("tf_model.h5"):
         print("🔽 Downloading model...")
@@ -33,24 +40,23 @@ def setup_model():
 
 setup_model()
 
-# -------------------------
 # تحميل الموديل والتوكنيزر
-# -------------------------
 model = TFBertForSequenceClassification.from_pretrained(MODEL_DIR)
 tokenizer = BertTokenizer.from_pretrained(MODEL_DIR)
 labels = ["happy", "sad", "angry", "normal"]
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    data = request.get_json()
+# راوت البريديكت
+@app.post("/predict")
+async def predict(request: Request):
+    data = await request.json()
 
     if "text" not in data:
-        return jsonify({"error": "No text provided"}), 400
+        return JSONResponse(content={"error": "No text provided"}, status_code=400)
 
     try:
         translated_text = GoogleTranslator(source='auto', target='en').translate(data["text"])
     except Exception as e:
-        return jsonify({"error": f"Translation failed: {str(e)}"}), 500
+        return JSONResponse(content={"error": f"Translation failed: {str(e)}"}, status_code=500)
 
     inputs = tokenizer(translated_text, return_tensors="tf", truncation=True, padding=True)
     outputs = model(**inputs)
@@ -58,14 +64,10 @@ def predict():
     predicted_class = tf.argmax(logits, axis=1).numpy()[0]
     sentiment = labels[predicted_class]
 
-    return jsonify({
+    return {
         "original_text": data["text"],
         "translated_text": translated_text,
         "sentiment": sentiment,
         "label_index": int(predicted_class),
         "logits": logits.numpy().tolist()
-    })
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    }
