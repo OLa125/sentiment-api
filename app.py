@@ -26,11 +26,10 @@ def setup_model():
 
         os.remove(ZIP_PATH)
 
+# تحميل الموديل والتوكنيزر
 setup_model()
 
-# -------------------------
 # تحميل الموديل والتوكنيزر
-# -------------------------
 model = TFBertForSequenceClassification.from_pretrained(MODEL_DIR)
 tokenizer = BertTokenizer.from_pretrained(MODEL_DIR)
 labels = ["happy", "sad", "angry", "normal"]
@@ -60,4 +59,3 @@ def predict(text):
 iface = gr.Interface(fn=predict, inputs="text", outputs="json")
 
 iface.launch(share=True)  # share=True هيسمحلك بمشاركة الرابط العام
-
