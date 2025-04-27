@@ -1,5 +1,5 @@
-gradio
+Flask
 tensorflow
 transformers
-gdown
 deep-translator
+gunicorn
